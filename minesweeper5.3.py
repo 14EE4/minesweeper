@@ -5,11 +5,13 @@ import random #외장함수 불러오기
 while True:
     while True:
         try:
-            minenum=int(input('지뢰 개수(0~225):'))
-        except:
-            continue
-        if 0<=minenum<=225:
-            break
+            minenum = int(input('지뢰 개수(0~225):'))
+            if 0 <= minenum <= 225:
+                break
+            else:
+                print("0에서 225 사이의 숫자를 입력해주세요.")
+        except ValueError:
+            print("유효한 숫자를 입력해주세요.")
 
 
     Map=[['0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'],
