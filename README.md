@@ -1,5 +1,8 @@
 # Minesweeper (지뢰찾기)
 
+> **Note**: 이 프로젝트는 Google의 Gemini CLI의 도움을 받아 제작되었습니다.
+
+
 Python의 `tkinter` 라이브러리를 사용하여 만든 클래식 지뢰찾기 게임입니다.
 
 ## 주요 기능
