@@ -175,7 +175,6 @@ class Minesweeper(tk.Frame):
 class SettingsDialog(tk.Toplevel):
     def __init__(self, master):
         super().__init__(master)
-        print("LOG: SettingsDialog created.")
         self.title("Settings")
         self.transient(master)
         self.grab_set()
@@ -212,8 +211,6 @@ class SettingsDialog(tk.Toplevel):
 
         self.toggle_custom_entries()
         self.protocol("WM_DELETE_WINDOW", self.on_close)
-        
-        print("LOG: Waiting for SettingsDialog to close...")
         self.master.wait_window(self)
 
     def toggle_custom_entries(self):
@@ -237,11 +234,9 @@ class SettingsDialog(tk.Toplevel):
             except ValueError:
                 tk.messagebox.showerror("Invalid Input", "Please enter valid numbers.")
                 return
-        print(f"LOG: Settings chosen: {self.result}")
         self.destroy()
 
     def on_close(self):
-        print("LOG: Settings window closed by user.")
         self.result = None
         self.destroy()
 
@@ -250,33 +245,27 @@ class App:
         self.master = master
         self.current_game_frame = None
         self.master.title("Minesweeper")
-        print("LOG: App initialized.")
-        # Start the process
         self.show_settings()
 
     def show_settings(self):
-        print("LOG: show_settings called.")
         if self.current_game_frame:
             self.current_game_frame.destroy()
 
-        # This is a much more stable way to handle the settings dialog
+        # DO NOT HIDE THE MAIN WINDOW. This is the key change.
+        # self.master.withdraw()
         settings_dialog = SettingsDialog(self.master)
         settings = settings_dialog.result
-        print(f"LOG: Settings dialog returned: {settings}")
 
         if settings:
+            # self.master.deiconify()
             self.start_game(settings)
         else:
-            print("LOG: No settings, closing application.")
             self.master.destroy()
 
     def start_game(self, settings):
-        print(f"LOG: Starting game with settings: {settings}")
         rows, cols, mines = settings
-        self.master.title("Minesweeper")
         self.current_game_frame = Minesweeper(self.master, rows, cols, mines, self.show_settings)
         
-        # Center the window
         self.master.update_idletasks()
         width = self.current_game_frame.winfo_width()
         height = self.current_game_frame.winfo_height()
@@ -285,11 +274,6 @@ class App:
         self.master.geometry(f'{width}x{height}+{x}+{y}')
 
 if __name__ == '__main__':
-    print("LOG: Application starting...")
     root = tk.Tk()
-    # IMPORTANT: DO NOT HIDE THE ROOT WINDOW
-    # root.withdraw()
     app = App(root)
-    print("LOG: Entering mainloop...")
     root.mainloop()
-    print("LOG: Exited mainloop. Application finished.")
