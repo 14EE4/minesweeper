@@ -15,9 +15,10 @@ class Minesweeper(tk.Frame):
 
         self.mine_map = []
         self.revealed_cells = 0
-        self.flag_count = 0
         self.game_over = False
         self.first_click = True
+        self.lives = 3  # 목숨 추가
+        self.remaining_mines = mines
 
         self.create_widgets()
         self._initialize_game_state()
@@ -29,8 +30,11 @@ class Minesweeper(tk.Frame):
         self.new_game_button = tk.Button(self.top_frame, text="New Game", command=self.restart_callback)
         self.new_game_button.pack(side=tk.LEFT, padx=10)
 
-        self.flag_counter_label = tk.Label(self.top_frame, text=f"Flags: {self.mines}", font=("Helvetica", 12))
-        self.flag_counter_label.pack(side=tk.LEFT, padx=10)
+        self.mine_counter_label = tk.Label(self.top_frame, text=f"남은 지뢰: {self.remaining_mines}", font=("Helvetica", 12))
+        self.mine_counter_label.pack(side=tk.LEFT, padx=10)
+
+        self.lives_label = tk.Label(self.top_frame, text=f"목숨: {self.lives}", font=("Helvetica", 12))
+        self.lives_label.pack(side=tk.LEFT, padx=10)
 
         self.status_label = tk.Label(self.top_frame, text="Good Luck!", font=("Helvetica", 12))
         self.status_label.pack(side=tk.RIGHT, padx=10)
@@ -93,10 +97,12 @@ class Minesweeper(tk.Frame):
     def _initialize_game_state(self):
         self.game_over = False
         self.revealed_cells = 0
-        self.flag_count = self.mines
         self.first_click = True
+        self.lives = 3
+        self.remaining_mines = self.mines
         self.status_label.config(text="Good Luck!")
-        self.flag_counter_label.config(text=f"Flags: {self.flag_count}")
+        self.mine_counter_label.config(text=f"남은 지뢰: {self.remaining_mines}")
+        self.lives_label.config(text=f"목숨: {self.lives}")
         self.setup_board_buttons()
 
     def on_button_click(self, r, c, event):
@@ -113,8 +119,12 @@ class Minesweeper(tk.Frame):
                     self.first_click = False
                 
                 if self.mine_map[r][c] == 'M':
-                    self.reveal_mines()
-                    self.status_label.config(text="Game Over!")
+                    self.lives -= 1
+                    self.lives_label.config(text=f"목숨: {self.lives}")
+                    self.buttons[r][c].config(text='M', bg='red', state='disabled', relief=tk.SUNKEN)
+                    if self.lives <= 0:
+                        self.reveal_mines()
+                        self.status_label.config(text="Game Over!")
                 else:
                     self.reveal_cell(r, c)
         
@@ -143,8 +153,12 @@ class Minesweeper(tk.Frame):
         if self.buttons[r][c]['state'] == 'disabled': return
 
         if self.mine_map[r][c] == 'M':
-            self.reveal_mines()
-            self.status_label.config(text="Game Over!")
+            self.lives -= 1
+            self.lives_label.config(text=f"목숨: {self.lives}")
+            self.buttons[r][c].config(text='M', bg='red', state='disabled', relief=tk.SUNKEN)
+            if self.lives <= 0:
+                self.reveal_mines()
+                self.status_label.config(text="Game Over!")
             return
 
         self.buttons[r][c].config(state='disabled', relief=tk.SUNKEN, bg='#d9d9d9')
@@ -163,14 +177,13 @@ class Minesweeper(tk.Frame):
         if self.game_over or self.buttons[r][c]['state'] == 'disabled': return
         
         if self.buttons[r][c]['text'] == '':
-            if self.flag_count > 0:
-                self.buttons[r][c].config(text='🚩', bg='yellow')
-                self.flag_count -= 1
+            self.buttons[r][c].config(text='🚩', bg='yellow')
+            self.remaining_mines -= 1
         elif self.buttons[r][c]['text'] == '🚩':
             self.buttons[r][c].config(text='', bg='SystemButtonFace')
-            self.flag_count += 1
+            self.remaining_mines += 1
         
-        self.flag_counter_label.config(text=f"Flags: {self.flag_count}")
+        self.mine_counter_label.config(text=f"남은 지뢰: {self.remaining_mines}")
 
 class SettingsDialog(tk.Toplevel):
     def __init__(self, master):
