@@ -151,6 +151,7 @@ class Minesweeper(tk.Frame):
 
     def reveal_cell(self, r, c):
         if self.buttons[r][c]['state'] == 'disabled': return
+        if self.buttons[r][c]['text'] == '🚩': return
 
         if self.mine_map[r][c] == 'M':
             self.lives -= 1
