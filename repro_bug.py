@@ -33,7 +33,7 @@ def test_flag_overwrite():
     game.toggle_flag(0, 1)
     
     print(f"Cell (0,1) text after flag: '{game.buttons[0][1]['text']}'")
-    assert game.buttons[0][1]['text'] == '🚩'
+    assert game.buttons[0][1]['text'] == 'F'
     
     # 2. Click (2, 2) which is '0'. Should expand.
     # Expansion should reach (0, 1) because it's neighbor of (0, 2) '0'.
@@ -45,7 +45,7 @@ def test_flag_overwrite():
     print(f"Cell (0,1) text after expansion: '{game.buttons[0][1]['text']}'")
     print(f"Cell (0,1) state after expansion: '{game.buttons[0][1]['state']}'")
     
-    if game.buttons[0][1]['text'] != '🚩':
+    if game.buttons[0][1]['text'] != 'F':
         print("BUG REPRODUCED: Flag was overwritten!")
     else:
         print("Bug not reproduced: Flag preserved.")

@@ -20,6 +20,10 @@ class Minesweeper(tk.Frame):
         self.lives = 3  # 목숨 추가
         self.remaining_mines = mines
 
+        self.colors = {
+            1: 'blue', 2: 'green', 3: 'red', 4: 'darkblue',
+            5: 'brown', 6: 'cyan', 7: 'black', 8: 'gray'
+        }
         self.create_widgets()
         self._initialize_game_state()
 
@@ -85,10 +89,10 @@ class Minesweeper(tk.Frame):
         for r in range(self.rows):
             for c in range(self.cols):
                 if self.mine_map[r][c] == 'M':
-                    if self.buttons[r][c]['text'] != '🚩':
+                    if self.buttons[r][c]['text'] != 'F':
                         bg_color = 'lightgreen' if game_won else 'red'
                         self.buttons[r][c].config(text='M', bg=bg_color, state='disabled', relief=tk.SUNKEN)
-                elif self.buttons[r][c]['text'] == '🚩':
+                elif self.buttons[r][c]['text'] == 'F':
                     self.buttons[r][c].config(bg='orange', state='disabled', relief=tk.SUNKEN)
 
     def check_win(self):
@@ -111,7 +115,7 @@ class Minesweeper(tk.Frame):
         if event.num == 1: # Left-click
             if self.buttons[r][c]['state'] == 'disabled':
                 self.chord(r, c)
-            elif self.buttons[r][c]['text'] == '🚩':
+            elif self.buttons[r][c]['text'] == 'F':
                 return
             else:
                 if self.first_click:
@@ -140,18 +144,18 @@ class Minesweeper(tk.Frame):
         try: mine_count_in_cell = int(self.mine_map[r][c])
         except (ValueError, TypeError): return
 
-        flag_count_around = sum(1 for i in range(-1, 2) for j in range(-1, 2) if 0 <= r + i < self.rows and 0 <= c + j < self.cols and self.buttons[r + i][c + j]['text'] == '🚩')
+        flag_count_around = sum(1 for i in range(-1, 2) for j in range(-1, 2) if 0 <= r + i < self.rows and 0 <= c + j < self.cols and self.buttons[r + i][c + j]['text'] == 'F')
         
         if mine_count_in_cell == flag_count_around:
             for i in range(-1, 2):
                 for j in range(-1, 2):
                     if i == 0 and j == 0: continue
-                    if 0 <= r + i < self.rows and 0 <= c + j < self.cols and self.buttons[r + i][c + j]['text'] != '🚩':
+                    if 0 <= r + i < self.rows and 0 <= c + j < self.cols and self.buttons[r + i][c + j]['text'] != 'F':
                         self.reveal_cell(r + i, c + j)
 
     def reveal_cell(self, r, c):
         if self.buttons[r][c]['state'] == 'disabled': return
-        if self.buttons[r][c]['text'] == '🚩': return
+        if self.buttons[r][c]['text'] == 'F': return
 
         if self.mine_map[r][c] == 'M':
             self.lives -= 1
@@ -162,9 +166,15 @@ class Minesweeper(tk.Frame):
                 self.status_label.config(text="Game Over!")
             return
 
-        self.buttons[r][c].config(state='disabled', relief=tk.SUNKEN, bg='#d9d9d9')
+        # Change background to white for better contrast
+        self.buttons[r][c].config(state='disabled', relief=tk.SUNKEN, bg='white')
         if self.mine_map[r][c] != '0':
-            self.buttons[r][c].config(text=self.mine_map[r][c])
+            val = int(self.mine_map[r][c])
+            color = self.colors.get(val, 'black')
+            # Disabled buttons tend to grey out text, so we might need a workaround if it looks bad.
+            # But standard disabled fg works often enough or we can't change it easily in standard Button.
+            # Let's try forcing disabledforeground.
+            self.buttons[r][c].config(text=str(val), disabledforeground=color)
         
         self.revealed_cells += 1
 
@@ -178,10 +188,10 @@ class Minesweeper(tk.Frame):
         if self.game_over or self.buttons[r][c]['state'] == 'disabled': return
         
         if self.buttons[r][c]['text'] == '':
-            self.buttons[r][c].config(text='🚩', bg='yellow')
+            self.buttons[r][c].config(text='F', fg='red')
             self.remaining_mines -= 1
-        elif self.buttons[r][c]['text'] == '🚩':
-            self.buttons[r][c].config(text='', bg='SystemButtonFace')
+        elif self.buttons[r][c]['text'] == 'F':
+            self.buttons[r][c].config(text='', bg='SystemButtonFace', fg='black')
             self.remaining_mines += 1
         
         self.mine_counter_label.config(text=f"남은 지뢰: {self.remaining_mines}")
